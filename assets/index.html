@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Trest Print Server</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div id="loader">
+        <div class="loader"></div>
+      </div>
+      <div class="panel">
+        <h1>Trest Print Server</h1>
+        <div>
+          <p>Cloud service credentials</p>
+        </div>
+        <div class="form-fieldset">
+          <div class="form-field">
+            <label for="apiHost">Host <small style="font-weight: normal">(example: api.acafe.trest.app)</small></label>
+            <input type="text" name="host" id="apiHost" />
+          </div>
+          <div class="form-field">
+            <label for="login">API key</label>
+            <input type="text" name="apiKey" id="apiKey" />
+          </div>
+          <div class="form-field">
+            <label>&nbsp;</label>
+            <button id="btnUpdate">Update</button>
+          </div>
+        </div>
+        <div class="status">check...</div>
+        <h2>Printers</h2>
+        <div class="table">
+          <table style="width: 100%">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Address</th>
+                <th>Port</th>
+              </tr>
+            </thead>
+            <tbody id="printers"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>

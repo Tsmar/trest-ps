@@ -1,0 +1,25 @@
+{
+  "name": "trest-ps",
+  "module": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "prod": "bun ./src/index.ts",
+    "dev": "bun --watch ./src",
+    "build": "bun build --outdir ./build ./src/index.ts --minify",
+    "build:win": "bun build --compile --minify --sourcemap --bytecode --target=bun-windows-x64-modern ./src/index.ts --outfile ./build/win-x64-trest-print-server",
+    "build:mac": "bun build --compile --minify --sourcemap --bytecode --target=bun-darwin-x64 ./src/index.ts --outfile ./build/mac-trest-print-server"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/jsonwebtoken": "^9.0.8",
+    "escpos": "^3.0.0-alpha.6",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io-client": "^4.8.1",
+    "usb": "^2.14.0"
+  }
+}
