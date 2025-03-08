@@ -15,7 +15,7 @@ export enum PrinterConnectionType {
 
 type ReceiptData = {
   title: string
-  items: { name: string; quantity: number; price: number }[]
+  items: { name: string; quantity: number; modificators?: string[]; extras?: string[]; price: number }[]
   total: number
 }
 
@@ -101,16 +101,18 @@ export default class Printer {
       console.error('Printer: open error', error)
       return
     }
-    this.device.on('connect', () => {
+    this.device.on('connect', async () => {
       this.isBusy = true
-      console.log('Printer: start printing', data.type)
+      const receiptData = data.data as ReceiptData
       switch (data.type) {
         case PrintDataType.TEST:
-          this.printTest()
+          await this.printTest()
+          break
+        case PrintDataType.RECIPE:
+          await this.printRecipe(receiptData)
           break
         case PrintDataType.RECEIPT:
-          const receiptData = data.data as ReceiptData
-          this.printReceipt(receiptData)
+          await this.printReceipt(receiptData, true)
           break
         default:
           console.error('Printer: unknown command type', data.type)
@@ -124,6 +126,28 @@ export default class Printer {
     return this.device !== undefined && this.printer !== undefined
   }
 
+  private async printRecipe(data: ReceiptData) {
+    for (let i = 0; i < data.items.length; i++) {
+      const item = data.items[i]
+      // header
+      this.printer.feed(2).style('b').text(item.name).style('noraml').drawLine()
+      // items
+      if (item.modificators) {
+        this.printer.feed(1).text('Modificators:').newline()
+        item.modificators.forEach(mod => {
+          this.printer.text(mod).newline()
+        })
+      }
+      if (item.extras) {
+        this.printer.feed(1).text('Extras:').newline()
+        item.extras.forEach(extra => {
+          this.printer.text(extra).newline()
+        })
+      }
+      this.printer.feed(4).cut().close()
+    }
+  }
+
   private async printTest() {
     const data = {
       title: 'ACafe',
@@ -135,11 +159,14 @@ export default class Printer {
       ],
       total: 450.0,
     }
+    await this.printReceipt(data, true)
+  }
 
-    // title
-    // this.printer.align('ct').sizeTwo().style('b').text('-= A Cafe =-').feed(2).align('lt').sizeOne().style('noraml')
-    await this.drawImage()
-    // // header
+  private async printReceipt(data: ReceiptData, printImage: boolean = false) {
+    if (printImage) {
+      await this.drawImage()
+    }
+    // header
     this.printer
       .feed(2)
       .style('b')
@@ -149,7 +176,7 @@ export default class Printer {
       ])
       .style('noraml')
       .drawLine()
-    // // items
+    // items
     data.items.forEach(item => {
       this.printer.tableCustom([
         { text: item.name, align: 'LEFT', width: 0.6 },
@@ -170,29 +197,6 @@ export default class Printer {
         { text: data.total.toFixed(2) + ' thb', align: 'RIGHT', width: 0.5 },
       ])
     this.printer.feed(4).cut().close()
-  }
-
-  private printReceipt(data: ReceiptData) {
-    this.printer.align('ct')
-    // this.printer.font('a')
-    // this.printer.size(2, 2)
-    this.printer.feed(2)
-    this.printer.text(data.title)
-    // this.printer.size(1, 1)
-    this.printer.feed(1)
-    this.printer.align('lt')
-
-    data.items.forEach(item => {
-      this.printer.text(`${item.name}    ${item.price.toFixed(2)}`)
-    })
-
-    this.printer
-      .feed(1)
-      .style('b')
-      .text(`Total: ${data.total.toFixed(2)} thb`)
-      .feed(2)
-      .cut()
-      .close()
   }
 
   private async drawImage() {
